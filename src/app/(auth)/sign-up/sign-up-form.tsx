@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -25,57 +26,69 @@ import {
 import { Input } from "@/components/ui/input";
 import PasswordInput from "@/components/common/password-input";
 import LoadingButton from "@/components/common/loading-button";
-import { authClient } from "@/lib/auth-client";
-import { signInSchema, SignInValues } from "@/validations";
+import { signUpWithEmail } from "@/lib/auth-client";
+import { signUpSchema, SignUpValues } from "@/validations";
 
 export default function SignUpForm() {
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  const redirect = searchParams.get("redirect");
-
-  const form = useForm<SignInValues>({
-    resolver: zodResolver(signInSchema),
+  const form = useForm<SignUpValues>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
-      rememberMe: false,
+      passwordConfirmation: "",
     },
   });
 
-  async function onSubmit({ email, password, rememberMe }: SignInValues) {
+  async function onSubmit({ name, email, password }: SignUpValues) {
     setError(null);
-    setLoading(true);
 
-    const { error } = await authClient.signIn.email({
+    const { error } = await signUpWithEmail({
       email,
       password,
-      rememberMe,
+      name,
+      callbackURL: "/email-verified",
     });
-
-    setLoading(false);
 
     if (error) {
       setError(error.message || "Something went wrong");
     } else {
-      toast.success("Signed in successfully");
-      router.push(redirect ?? "/dashboard");
+      toast.success("Signed up successfully");
+      router.push("/dashboard");
     }
   }
+
+  const loading = form.formState.isSubmitting;
+
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
+        <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
         <CardDescription className="text-xs md:text-sm">
-          Enter your email below to login to your account
+          Enter your information to create an account
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="email"
@@ -99,18 +112,10 @@ export default function SignUpForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel>Password</FormLabel>
-                    <Link
-                      href="/forgot-password"
-                      className="ml-auto inline-block text-sm underline"
-                    >
-                      Forgot your password?
-                    </Link>
-                  </div>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <PasswordInput
-                      autoComplete="current-password"
+                      autoComplete="new-password"
                       placeholder="Password"
                       {...field}
                     />
@@ -122,16 +127,18 @@ export default function SignUpForm() {
 
             <FormField
               control={form.control}
-              name="rememberMe"
+              name="passwordConfirmation"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                    <PasswordInput
+                      autoComplete="new-password"
+                      placeholder="Confirm password"
+                      {...field}
                     />
                   </FormControl>
-                  <FormLabel>Remember me</FormLabel>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -143,7 +150,7 @@ export default function SignUpForm() {
             )}
 
             <LoadingButton type="submit" className="w-full" loading={loading}>
-              Login
+              Create an account
             </LoadingButton>
           </form>
         </Form>
@@ -151,9 +158,9 @@ export default function SignUpForm() {
       <CardFooter>
         <div className="flex w-full justify-center border-t pt-4">
           <p className="text-muted-foreground text-center text-xs">
-            Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="underline">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/sign-in" className="underline">
+              Sign in
             </Link>
           </p>
         </div>

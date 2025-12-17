@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -25,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import PasswordInput from "@/components/common/password-input";
 import LoadingButton from "@/components/common/loading-button";
-import { authClient } from "@/lib/auth-client";
+import { signInWithEmail } from "@/lib/auth-client";
 import { signInSchema, SignInValues } from "@/validations";
 
 export default function SignInForm() {
@@ -50,7 +52,7 @@ export default function SignInForm() {
     setError(null);
     setLoading(true);
 
-    const { error } = await authClient.signIn.email({
+    const { error } = await signInWithEmail({
       email,
       password,
       rememberMe,
