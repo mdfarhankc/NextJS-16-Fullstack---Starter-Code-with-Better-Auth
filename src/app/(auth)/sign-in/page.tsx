@@ -1,5 +1,14 @@
-import React from "react";
+import { Metadata } from "next";
+import SignInForm from "./sign-in-form";
 
-export default function SignInPage() {
-  return <div>SignInPage</div>;
+export const metadata: Metadata = {
+  title: "Sign in",
+};
+
+export default async function SignInPage() {
+  return (
+    <main className="flex min-h-svh items-center justify-center px-4">
+      <SignInForm />
+    </main>
+  );
 }

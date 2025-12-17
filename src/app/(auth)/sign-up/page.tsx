@@ -1,5 +1,14 @@
-import React from "react";
+import { Metadata } from "next";
+import SignUpForm from "./sign-up-form";
 
-export default function SignUpPage() {
-  return <div>SignInPage</div>;
+export const metadata: Metadata = {
+  title: "Sign up",
+};
+
+export default async function SignUpPage() {
+  return (
+    <main className="flex min-h-svh items-center justify-center px-4">
+      <SignUpForm />
+    </main>
+  );
 }
