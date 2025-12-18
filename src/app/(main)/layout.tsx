@@ -1,7 +1,14 @@
+import Header from "../header";
+
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      {children}
+    </div>
+  );
 }
