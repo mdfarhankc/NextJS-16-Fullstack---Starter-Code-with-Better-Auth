@@ -1,6 +1,10 @@
 import { createAuthClient } from "better-auth/react";
+import { adminClient } from "better-auth/client/plugins";
 
-export const authClient = createAuthClient();
+
+export const authClient = createAuthClient({
+    plugins: [adminClient()]
+});
 
 export const signUpWithEmail = async ({ name, email, password, image, callbackURL }: {
     name: string;
